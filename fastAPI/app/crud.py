@@ -1,15 +1,10 @@
 from sqlalchemy.orm import Session
-from . import models, schemas
+from . import models
 
-def create_post(db: Session, post: schemas.PostCreate):
-    db_post = models.Post(**post.dict())
-    db.add(db_post)
-    db.commit()
-    db.refresh(db_post)
-    return db_post
-
-def get_post(db: Session, post_id: int):
-    return db.query(models.Post).filter(models.Post.id == post_id).first()
-
-def get_posts(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(models.Post).offset(skip).limit(limit).all()
+def get_posts(db: Session, title: str = None, content: str = None):
+    query = db.query(models.Post)
+    if title:
+        query = query.filter(models.Post.title.contains(title))
+    if content:
+        query = query.filter(models.Post.content.contains(content))
+    return query.all()
